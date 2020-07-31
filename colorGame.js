@@ -4,9 +4,12 @@ const rgbDisplay = document.getElementById('rgbDisplay');
 const messageDisplay = document.getElementById('message');
 const h1 = document.querySelector('h1');
 const resetButton = document.getElementById('reset');
-const easyBtn = document.getElementById('easyBtn');
-const hardBtn = document.getElementById('hardBtn');
+const modeButtons = document.querySelectorAll(".mode");
 const stripe = document.querySelector('#stripe');
+
+let numOfSquares = 6;
+let colors = [];
+let pickedColor;
 
 /***
  * FUNCTIONS
@@ -43,43 +46,7 @@ const generateRandomColors = num => {
     return arr;
 };
 
-
-
-/**
- * INITIALIZE
- */
-let numOfSquares = 6;
-let colors = generateRandomColors(numOfSquares);
-let pickedColor = pickColor();
-
-rgbDisplay.textContent = pickedColor;
-
-for(let i = 0; i < squares.length; i++) {
-    squares[i].style.backgroundColor = colors[i];
-}
-
-/**
- * LISTENERS
- */
-squareContainer.addEventListener('click', e => {
-    const square = e.target.closest('.square');
-    const clickedColor = square.style.backgroundColor;
-
-    //Correct Answer!
-    if(clickedColor === pickedColor){
-        messageDisplay.textContent = 'Correct!';
-        resetButton.textContent = 'Play Again?';
-        changeColors(clickedColor);
-    } 
-    //Wrong Answer
-    else {
-        square.style.backgroundColor = '#232323';
-        messageDisplay.textContent = 'Try Again';
-    }
-
-});
-
-resetButton.addEventListener('click', () => {
+const reset = () => {
     //generate all new colors
     colors = generateRandomColors(numOfSquares);
     //pick a new random color
@@ -88,43 +55,64 @@ resetButton.addEventListener('click', () => {
     rgbDisplay.textContent = pickedColor;
     //change colors of squares
     for(let i = 0; i < squares.length; i++) {
-        squares[i].style.backgroundColor = colors[i];
+        if (colors[i]) {
+            squares[i].style.display = 'block';
+            squares[i].style.backgroundColor = colors[i];
+        } else {
+            squares[i].style.display = 'none';
+        }
     }
 
     h1.style.backgroundColor = 'steelblue';
-});
+    messageDisplay.textContent = ' ';
+    resetButton.textContent = 'New Colors';
+};
 
-stripe.addEventListener('click', e => {
-    const button = e.target.closest('button');
-    if (button === easyBtn) {
-        easyBtn.classList.add('selected');
-        hardBtn.classList.remove('selected');
-        numOfSquares = 3;
-        colors = generateRandomColors(numOfSquares);
-        pickedColor = pickColor();
+const init = () => {
 
-        rgbDisplay.textContent = pickedColor;
-        for(let i = 0; i  < squares.length; i++) {
-            if(colors[i]) {
-                squares[i].style.backgroundColor = colors[i];
-            }
-            else {
-                squares[i].style.display = 'none';
-            }
-        }
-    }
-    else if (button === hardBtn) {
-        easyBtn.classList.remove('selected');
-        hardBtn.classList.add('selected');
-        numOfSquares = 6;
-        colors = generateRandomColors(numOfSquares);
-        pickedColor = pickColor();
-
-        rgbDisplay.textContent = pickedColor;
-        for(let i = 0; i  < squares.length; i++) {
-            squares[i].style.backgroundColor = colors[i];
-            squares[i].style.display = 'block';
-        }
-    }
+    /**
+     * LISTENERS
+     */
+    squareContainer.addEventListener('click', e => {
+        const square = e.target.closest('.square');
+        const clickedColor = square.style.backgroundColor;
     
-});
+        //Correct Answer!
+        if(clickedColor === pickedColor){
+            messageDisplay.textContent = 'Correct!';
+            resetButton.textContent = 'Play Again?';
+            changeColors(clickedColor);
+        } 
+        //Wrong Answer
+        else {
+            square.style.backgroundColor = '#232323';
+            messageDisplay.textContent = 'Try Again';
+        }
+    
+    });
+    
+    resetButton.addEventListener('click', () => {
+        reset();
+    });
+    
+    stripe.addEventListener('click', e => {
+        const button = e.target.closest('.mode');
+        
+        if (button) {
+            modeButtons[0].classList.remove('selected');
+            modeButtons[1].classList.remove('selected');
+            button.classList.add('selected');
+        
+            button.textContent === 'Easy' ? numOfSquares = 3: numOfSquares = 6;
+        
+            reset();
+        }
+    });
+
+    reset();
+};
+
+/**
+ * INITIALIZE
+ */
+init();
